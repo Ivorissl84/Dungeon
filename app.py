@@ -2,6 +2,7 @@
 from flask import Flask, render_template, request, redirect
 import sqlite3
 from datetime import time
+import os
 
 app = Flask(__name__)
 
@@ -18,6 +19,9 @@ def init_db():
                 )''')
     conn.commit()
     conn.close()
+
+# Diese Zeile hier macht's Render-kompatibel:
+init_db()
 
 @app.route("/")
 def index():
@@ -45,5 +49,4 @@ def submit():
     return redirect("/")
 
 if __name__ == "__main__":
-    init_db()
     app.run(debug=True)
