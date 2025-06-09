@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Überschneidungen</title>
+</head>
+<body>
+    <h1>Überschneidungen am {{ weekday }} zwischen {{ start_time }} und {{ end_time }}</h1>
+
+    {% if overlaps %}
+        <ul>
+        {% for name, role, s, e in overlaps %}
+            <li>{{ name }} ({{ role }}): {{ s }} – {{ e }}</li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>Keine Überschneidungen gefunden.</p>
+    {% endif %}
+
+    <br><a href="/">Zurück</a>
+</body>
+</html>
