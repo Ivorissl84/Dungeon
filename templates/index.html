@@ -1,54 +1,32 @@
 <!DOCTYPE html>
-<html>
+<html lang="de">
 <head>
-    <title>Verfügbarkeit eintragen & prüfen</title>
+    <meta charset="UTF-8">
+    <title>Verfügbarkeit eintragen</title>
 </head>
 <body>
     <h1>Verfügbarkeit eintragen</h1>
-    <form action="/submit" method="POST">
-        Name: <input type="text" name="name" required><br><br>
+    <form method="POST" action="/submit">
+        Name: <input type="text" name="name" required><br>
         Rolle:
         <select name="role" required>
             <option value="Tank">Tank</option>
             <option value="Heiler">Heiler</option>
             <option value="DPS">DPS</option>
-        </select><br><br>
+        </select><br>
         Wochentag:
         <select name="weekday" required>
-            <option>Montag</option>
-            <option>Dienstag</option>
-            <option>Mittwoch</option>
-            <option>Donnerstag</option>
-            <option>Freitag</option>
-            <option>Samstag</option>
-            <option>Sonntag</option>
-        </select><br><br>
-        Von: <input type="time" name="start_time" required><br><br>
-        Bis: <input type="time" name="end_time" required><br><br>
-        <button type="submit">Speichern</button>
-    </form>
-
-    {% if message %}
-        <p style="color:green;">{{ message }}</p>
-    {% endif %}
-
-    <hr>
-
-    <h2>Überschneidungen anzeigen</h2>
-    <form action="/check" method="POST">
-        Wochentag:
-        <select name="weekday" required>
-            <option>Montag</option>
-            <option>Dienstag</option>
-            <option>Mittwoch</option>
-            <option>Donnerstag</option>
-            <option>Freitag</option>
-            <option>Samstag</option>
-            <option>Sonntag</option>
-        </select><br><br>
-        Von: <input type="time" name="start_time" required><br><br>
-        Bis: <input type="time" name="end_time" required><br><br>
-        <button type="submit">Wer ist online?</button>
+            <option value="Montag">Montag</option>
+            <option value="Dienstag">Dienstag</option>
+            <option value="Mittwoch">Mittwoch</option>
+            <option value="Donnerstag">Donnerstag</option>
+            <option value="Freitag">Freitag</option>
+            <option value="Samstag">Samstag</option>
+            <option value="Sonntag">Sonntag</option>
+        </select><br>
+        Startzeit: <input type="time" name="start_time" required><br>
+        Endzeit: <input type="time" name="end_time" required><br>
+        <input type="submit" value="Eintragen">
     </form>
 </body>
 </html>
