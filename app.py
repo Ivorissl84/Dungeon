@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, jsonify
 import sqlite3
 
 app = Flask(__name__)
@@ -23,11 +23,14 @@ def index():
 
 @app.route("/submit", methods=["POST"])
 def submit():
-    name = request.form["name"]
-    role = request.form["role"]
-    weekday = request.form["weekday"]
-    start_time = request.form["start_time"]
-    end_time = request.form["end_time"]
+    name = request.form.get("name", "").strip()
+    role = request.form.get("role", "").strip()
+    weekday = request.form.get("weekday", "").strip()
+    start_time = request.form.get("start_time", "").strip()
+    end_time = request.form.get("end_time", "").strip()
+
+    if not all([name, role, weekday, start_time, end_time]):
+        return "Fehlende Eingabedaten", 400
 
     conn = sqlite3.connect("database.db")
     c = conn.cursor()
@@ -35,29 +38,26 @@ def submit():
               (name, role, weekday, start_time, end_time))
     conn.commit()
     conn.close()
-    return render_template("index.html", message="Verfügbarkeit gespeichert!")
+    return redirect("/")
 
-@app.route("/check", methods=["POST"])
-def check():
-    weekday = request.form["weekday"]
-    start_time = request.form["start_time"]
-    end_time = request.form["end_time"]
+@app.route("/availability", methods=["GET"])
+def availability():
+    weekday = request.args.get("weekday")
+    start = request.args.get("start")
+    end = request.args.get("end")
 
     conn = sqlite3.connect("database.db")
     c = conn.cursor()
-    c.execute("""
-        SELECT name, role, start_time, end_time
-        FROM availability
-        WHERE weekday = ?
-          AND NOT (
-              end_time <= ? OR start_time >= ?
-          )
-        ORDER BY start_time
-    """, (weekday, start_time, end_time))
-    overlaps = c.fetchall()
+    c.execute("SELECT name, role, start_time, end_time FROM availability WHERE weekday = ?", (weekday,))
+    entries = c.fetchall()
     conn.close()
 
-    return render_template("overlap.html", overlaps=overlaps, weekday=weekday, start_time=start_time, end_time=end_time)
+    overlapping = []
+    for name, role, s, e in entries:
+        if s <= end and e >= start:
+            overlapping.append({"name": name, "role": role, "start": s, "end": e})
+
+    return jsonify(overlapping)
 
 if __name__ == "__main__":
     init_db()
