@@ -1,8 +1,5 @@
-
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request
 import sqlite3
-from datetime import time
-import os
 
 app = Flask(__name__)
 
@@ -20,17 +17,9 @@ def init_db():
     conn.commit()
     conn.close()
 
-# Diese Zeile hier macht's Render-kompatibel:
-init_db()
-
 @app.route("/")
 def index():
-    conn = sqlite3.connect("database.db")
-    c = conn.cursor()
-    c.execute("SELECT name, role, weekday, start_time, end_time FROM availability")
-    entries = c.fetchall()
-    conn.close()
-    return render_template("index.html", entries=entries)
+    return render_template("index.html")
 
 @app.route("/submit", methods=["POST"])
 def submit():
@@ -46,7 +35,30 @@ def submit():
               (name, role, weekday, start_time, end_time))
     conn.commit()
     conn.close()
-    return redirect("/")
+    return render_template("index.html", message="Verfügbarkeit gespeichert!")
+
+@app.route("/check", methods=["POST"])
+def check():
+    weekday = request.form["weekday"]
+    start_time = request.form["start_time"]
+    end_time = request.form["end_time"]
+
+    conn = sqlite3.connect("database.db")
+    c = conn.cursor()
+    c.execute("""
+        SELECT name, role, start_time, end_time
+        FROM availability
+        WHERE weekday = ?
+          AND NOT (
+              end_time <= ? OR start_time >= ?
+          )
+        ORDER BY start_time
+    """, (weekday, start_time, end_time))
+    overlaps = c.fetchall()
+    conn.close()
+
+    return render_template("overlap.html", overlaps=overlaps, weekday=weekday, start_time=start_time, end_time=end_time)
 
 if __name__ == "__main__":
+    init_db()
     app.run(debug=True)
